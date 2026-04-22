@@ -127,80 +127,110 @@ CREATE TABLE IF NOT EXISTS vendor_budgets (
 );
 """
 
-SEED_DESTINATIONS = ['Bloomsburg', 'Lock Haven', 'Mansfield']
+SEED_DESTINATIONS = ['Lamar University']
 
+# Departments map to academic departments at Lamar University
 SEED_DEPARTMENTS = [
-    'Anthropology, Sociology, Criminal Justice, and Social Work',
-    'Biological and Health Sciences',
-    'Breiner School of Nursing',
-    'Business, Innovation, and Technology',
-    'Communication Studies, Media and Journalism',
-    'Counseling & Educational Leadership',
-    'Early Childhood Education and Exceptionality Programs',
-    'English & Languages and Cultures',
-    'GovDocs',
-    'History, Political Science, and Philosophy',
-    'Interdisciplinary Studies',
-    'Juvenile',
-    'K-12, Health and Physical Education, & Middle Level & Secondary Education',
-    'Management',
-    'Mathematics, Computer Science & Digital Forensics',
-    'Music, Theatre & Dance',
-    'Physical and Environmental Sciences',
-    'Physician Assistant Studies',
+    # College of Arts and Sciences
+    'Biology',
+    'Chemistry and Biochemistry',
+    'Computer Science',
+    'Criminal Justice',
+    'Earth and Space Sciences',
+    'English and Modern Languages',
+    'History',
+    'Mathematics',
+    'JoAnne Gay Dishman School of Nursing',
+    'Physics',
+    'Political Science',
     'Psychology',
-    'Rehabilitation Sciences',
+    'Sociology and Social Work',
+    # College of Business
+    'Accounting, Finance and Economics',
+    'Construction Management',
+    'General Business',
+    'Information Systems',
+    'Management and Marketing',
+    # College of Education and Human Development
+    'Counseling',
+    'Curriculum and Instruction',
+    'Deaf Studies and Deaf Education',
+    'Educational Leadership',
+    # College of Engineering
+    'Chemical and Biomolecular Engineering',
+    'Civil and Environmental Engineering',
+    'Electrical and Computer Engineering',
+    'Industrial and Systems Engineering',
+    'Mechanical Engineering',
+    # College of Fine Arts and Communication
+    'Art and Design',
+    'Communication and Media',
+    'Music',
+    'Speech and Hearing Sciences',
+    'Theatre and Dance',
+    # Library collections
+    'GovDocs',
+    'Juvenile Collection',
     'Replacements',
     'Special Collections',
-    'Visual Arts',
 ]
 
 SEED_PROGRAMS = {
-    'Anthropology, Sociology, Criminal Justice, and Social Work': [
-        'Anthropology', 'Criminal Justice', 'Social Work', 'Sociology',
+    # College of Arts and Sciences
+    'Biology': ['Biology', 'Botany', 'Marine Biology', 'Zoology'],
+    'Chemistry and Biochemistry': ['Biochemistry', 'Chemistry'],
+    'Computer Science': ['Computer Science', 'Cybersecurity'],
+    'Criminal Justice': ['Criminal Justice', 'Forensic Science'],
+    'Earth and Space Sciences': ['Earth Science', 'Environmental Science', 'Space Science'],
+    'English and Modern Languages': ['English', 'French', 'Spanish', 'Technical Writing'],
+    'History': ['History'],
+    'Mathematics': ['Mathematics', 'Statistics'],
+    'JoAnne Gay Dishman School of Nursing': ['Nursing', 'Nursing – RN to BSN'],
+    'Physics': ['Physics'],
+    'Political Science': ['Political Science', 'Pre-Law'],
+    'Psychology': ['Applied Behavioral Analysis', 'Psychology'],
+    'Sociology and Social Work': ['Anthropology', 'Social Work', 'Sociology'],
+    # College of Business
+    'Accounting, Finance and Economics': ['Accounting', 'Economics', 'Finance'],
+    'Construction Management': ['Construction Management'],
+    'General Business': ['General Business', 'MBA'],
+    'Information Systems': ['Cybersecurity Management', 'Information Systems'],
+    'Management and Marketing': ['Management', 'Marketing', 'Supply Chain Management'],
+    # College of Education and Human Development
+    'Counseling': ['Mental Health Counseling', 'School Counseling'],
+    'Curriculum and Instruction': [
+        'Early Childhood Education', 'Elementary Education',
+        'Secondary Education', 'Special Education',
     ],
-    'Biological and Health Sciences': [
-        'Biology', 'Environmental Science', 'Health Sciences',
+    'Deaf Studies and Deaf Education': ['Deaf Education', 'Deaf Studies'],
+    'Educational Leadership': ['Principal Certification', 'Superintendent Certification'],
+    # College of Engineering
+    'Chemical and Biomolecular Engineering': [
+        'Biomolecular Engineering', 'Chemical Engineering',
     ],
-    'Breiner School of Nursing': ['Nursing'],
-    'Business, Innovation, and Technology': [
-        'Accounting', 'Business Administration', 'Finance', 'Marketing',
+    'Civil and Environmental Engineering': [
+        'Civil Engineering', 'Environmental Engineering',
     ],
-    'Communication Studies, Media and Journalism': [
-        'Communication Studies', 'Journalism', 'Media Studies',
+    'Electrical and Computer Engineering': [
+        'Computer Engineering', 'Electrical Engineering',
     ],
-    'Counseling & Educational Leadership': [
-        'Counseling', 'Educational Leadership',
+    'Industrial and Systems Engineering': [
+        'Industrial Engineering', 'Systems Engineering',
     ],
-    'Early Childhood Education and Exceptionality Programs': [
-        'Early Childhood Education', 'Special Education',
+    'Mechanical Engineering': ['Mechanical Engineering'],
+    # College of Fine Arts and Communication
+    'Art and Design': ['Art History', 'Graphic Design', 'Studio Art'],
+    'Communication and Media': [
+        'Broadcasting', 'Communication', 'Journalism', 'Public Relations',
     ],
-    'English & Languages and Cultures': [
-        'English', 'Modern Languages',
-    ],
+    'Music': ['Music Education', 'Music Performance'],
+    'Speech and Hearing Sciences': ['Audiology', 'Speech-Language Pathology'],
+    'Theatre and Dance': ['Dance', 'Technical Theatre', 'Theatre'],
+    # Library collections
     'GovDocs': ['Government Documents'],
-    'History, Political Science, and Philosophy': [
-        'History', 'Philosophy', 'Political Science',
-    ],
-    'Interdisciplinary Studies': ['Interdisciplinary Studies'],
-    'Juvenile': ['Juvenile Collection'],
-    'K-12, Health and Physical Education, & Middle Level & Secondary Education': [
-        'Health & Physical Education', 'Secondary Education',
-    ],
-    'Management': ['Business Administration', 'Management'],
-    'Mathematics, Computer Science & Digital Forensics': [
-        'Computer Science', 'Digital Forensics', 'Mathematics',
-    ],
-    'Music, Theatre & Dance': ['Dance', 'Music', 'Theatre'],
-    'Physical and Environmental Sciences': [
-        'Chemistry', 'Environmental Science', 'Physics',
-    ],
-    'Physician Assistant Studies': ['Physician Assistant Studies'],
-    'Psychology': ['Psychology'],
-    'Rehabilitation Sciences': ['Rehabilitation Sciences'],
+    'Juvenile Collection': ['Juvenile Collection'],
     'Replacements': ['Replacements'],
     'Special Collections': ['Special Collections'],
-    'Visual Arts': ['Art', 'Graphic Design'],
 }
 
 SEED_VENDORS = [
@@ -221,12 +251,12 @@ SEED_FISCAL_YEARS = [
 ]
 
 SEED_USERS = [
-    ('admin',     'admin123',     'Admin',    'User',      'admin@library.edu',      'admin'),
-    ('librarian1','librarian1',   'Katie',    'Yelinek',   'kyelinek@library.edu',   'librarian'),
-    ('acqtech1',  'acqtech1',     'Courtney', 'Heatley',   'cheatley@library.edu',   'acquisition_tech'),
-    ('catpers1',  'catpers1',     'Stacey',   'Hampe',     'shampe@library.edu',     'cataloging_personnel'),
-    ('testlib',   'testlib',      'TEST',     'Librarian', 'testlib@library.edu',    'librarian'),
-    ('testtech',  'testtech',     'TEST',     'Technician','testtech@library.edu',   'acquisition_tech'),
+    ('admin',     'admin123',     'Admin',    'User',      'admin@lamar.edu',        'admin'),
+    ('librarian1','librarian1',   'Katie',    'Yelinek',   'kyelinek@lamar.edu',     'librarian'),
+    ('acqtech1',  'acqtech1',     'Courtney', 'Heatley',   'cheatley@lamar.edu',     'acquisition_tech'),
+    ('catpers1',  'catpers1',     'Stacey',   'Hampe',     'shampe@lamar.edu',       'cataloging_personnel'),
+    ('testlib',   'testlib',      'TEST',     'Librarian', 'testlib@lamar.edu',      'librarian'),
+    ('testtech',  'testtech',     'TEST',     'Technician','testtech@lamar.edu',     'acquisition_tech'),
 ]
 
 
@@ -246,12 +276,12 @@ def init_db(force=False):
 
     dest_ids = {row[0]: row[1] for row in conn.execute('SELECT name, id FROM destinations')}
 
-    # Departments (assign to Lock Haven by default)
-    lh_id = dest_ids.get('Lock Haven')
+    # Departments – all under single Lamar University destination
+    lu_id = dest_ids.get('Lamar University')
     for dept in SEED_DEPARTMENTS:
         conn.execute(
             'INSERT OR IGNORE INTO departments (name, destination_id) VALUES (?,?)',
-            (dept, lh_id)
+            (dept, lu_id)
         )
     conn.commit()
 

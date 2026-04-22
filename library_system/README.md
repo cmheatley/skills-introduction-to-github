@@ -1,6 +1,6 @@
 # Library Ordering & Budget Tracking System
 
-A web-based collection development ordering and budget tracking system for academic libraries.
+A web-based collection development ordering and budget tracking system for Lamar University's Mary & John Gray Library.
 
 ## Features
 
