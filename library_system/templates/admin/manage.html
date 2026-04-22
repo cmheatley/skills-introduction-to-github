@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title %}System Settings – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <div class="page-header-row">
+    <h2 class="page-title">System Settings</h2>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline">Manage Users</a>
+  </div>
+
+  <div class="manage-grid">
+
+    <!-- DESTINATIONS -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Destinations</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Name</th><th></th></tr></thead>
+        <tbody>
+          {% for d in destinations %}
+          <tr>
+            <td>{{ d.name }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_destination_delete', did=d.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete destination {{ d.name }}?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_destination_add') }}" class="inline-add-form">
+        <input type="text" name="name" placeholder="New destination name" required>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+    <!-- DEPARTMENTS -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Departments</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Name</th><th>Destination</th><th></th></tr></thead>
+        <tbody>
+          {% for d in departments %}
+          <tr>
+            <td>{{ d.name }}</td>
+            <td>{{ d.destination_name or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_department_delete', did=d.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete department?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_department_add') }}" class="inline-add-form">
+        <input type="text" name="name" placeholder="Department name" required>
+        <select name="destination_id">
+          <option value="">No destination</option>
+          {% for d in destinations %}
+          <option value="{{ d.id }}">{{ d.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+    <!-- PROGRAMS -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Programs</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Name</th><th>Department</th><th></th></tr></thead>
+        <tbody>
+          {% for p in programs %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.department_name or '—' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_program_delete', pid=p.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete program?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_program_add') }}" class="inline-add-form">
+        <input type="text" name="name" placeholder="Program name" required>
+        <select name="department_id">
+          <option value="">No department</option>
+          {% for d in departments %}
+          <option value="{{ d.id }}">{{ d.name }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+    <!-- VENDORS -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Vendors</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Name</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for v in vendors %}
+          <tr>
+            <td>{{ v.name }}</td>
+            <td>{{ 'Active' if v.active else 'Inactive' }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_vendor_toggle', vid=v.id) }}"
+                    style="display:inline">
+                <button type="submit" class="btn btn-sm btn-outline">
+                  {{ 'Deactivate' if v.active else 'Activate' }}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('admin_vendor_delete', vid=v.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete vendor {{ v.name }}?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_vendor_add') }}" class="inline-add-form">
+        <input type="text" name="name" placeholder="Vendor name" required>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+    <!-- MATERIAL TYPES -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Material Types</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Name</th><th></th></tr></thead>
+        <tbody>
+          {% for mt in material_types %}
+          <tr>
+            <td>{{ mt.name }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_material_type_delete', mid=mt.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete material type?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_material_type_add') }}" class="inline-add-form">
+        <input type="text" name="name" placeholder="Material type name" required>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+    <!-- FISCAL YEARS -->
+    <div class="manage-card card card-dark">
+      <h3 class="section-title">Fiscal Years</h3>
+      <table class="data-table data-table-compact">
+        <thead><tr><th>Label</th><th>Start</th><th>End</th><th></th></tr></thead>
+        <tbody>
+          {% for fy in fiscal_years %}
+          <tr>
+            <td>{{ fy.label }}</td>
+            <td>{{ fy.start_date }}</td>
+            <td>{{ fy.end_date }}</td>
+            <td>
+              <form method="POST" action="{{ url_for('admin_fiscal_year_delete', fid=fy.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete fiscal year {{ fy.label }}?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="no-data">None</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="POST" action="{{ url_for('admin_fiscal_year_add') }}" class="inline-add-form">
+        <input type="text" name="label" placeholder="e.g. 2026-2027" required>
+        <input type="date" name="start_date" required>
+        <input type="date" name="end_date" required>
+        <button type="submit" class="btn btn-sm btn-primary">Add</button>
+      </form>
+    </div>
+
+  </div><!-- /manage-grid -->
+</div>
+{% endblock %}

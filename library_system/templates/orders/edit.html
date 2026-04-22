@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}Edit Order #{{ order.id }} – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <h2 class="page-title">Edit Order #{{ order.id }}</h2>
+
+  <form method="POST">
+    <div class="form-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="form-col">
+        <div class="form-section card card-dark">
+          <h3 class="section-title">ORDER INFO</h3>
+
+          <div class="form-group">
+            <label>Status:</label>
+            <select name="status">
+              {% for s in ['NEW','PENDING','COMPLETED','CANCELLED'] %}
+              <option value="{{ s }}" {% if order.status==s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Request Date:</label>
+            <input type="date" name="request_date" value="{{ order.request_date }}">
+          </div>
+
+          <div class="form-group">
+            <label>Librarian:</label>
+            <select name="librarian_id">
+              <option value="">-- none --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}" {% if order.librarian_id==u.id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Acquisition Tech:</label>
+            <select name="acquisition_tech_id">
+              <option value="">-- none --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}" {% if order.acquisition_tech_id==u.id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cataloging Personnel:</label>
+            <select name="cataloging_personnel_id">
+              <option value="">-- none --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}" {% if order.cataloging_personnel_id==u.id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Destination:</label>
+            <select name="destination_id">
+              <option value="">-- none --</option>
+              {% for d in destinations %}
+              <option value="{{ d.id }}" {% if order.destination_id==d.id %}selected{% endif %}>
+                {{ d.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Department:</label>
+            <select name="department_id">
+              <option value="">-- none --</option>
+              {% for d in departments %}
+              <option value="{{ d.id }}" {% if order.department_id==d.id %}selected{% endif %}>
+                {{ d.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Program:</label>
+            <select name="program_id">
+              <option value="">-- none --</option>
+              {% for p in programs %}
+              <option value="{{ p.id }}" {% if order.program_id==p.id %}selected{% endif %}>
+                {{ p.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date Fulfilled:</label>
+            <input type="date" name="date_fulfilled" value="{{ order.date_fulfilled or '' }}">
+          </div>
+        </div>
+      </div><!-- /left -->
+
+      <!-- RIGHT COLUMN -->
+      <div class="form-col">
+
+        <!-- Faculty Info -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">REQUESTING CLASSROOM FACULTY INFO</h3>
+          <p class="section-subtitle">Optional</p>
+
+          <div class="form-group">
+            <label>Faculty Name:</label>
+            <input type="text" name="faculty_name"
+                   value="{{ faculty_request.faculty_name if faculty_request else '' }}">
+          </div>
+          <div class="form-group">
+            <label>Faculty Email:</label>
+            <input type="email" name="faculty_email"
+                   value="{{ faculty_request.faculty_email if faculty_request else '' }}">
+          </div>
+          <div class="form-group">
+            <label>Faculty Phone:</label>
+            <input type="text" name="faculty_phone"
+                   value="{{ faculty_request.faculty_phone if faculty_request else '' }}">
+          </div>
+
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" name="notify_faculty"
+                     {% if faculty_request and faculty_request.notify_faculty %}checked{% endif %}>
+              Notify Faculty
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="preview_item"
+                     {% if faculty_request and faculty_request.preview_item %}checked{% endif %}>
+              Preview Item
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="hold_item"
+                     {% if faculty_request and faculty_request.hold_item %}checked{% endif %}>
+              Place Item on Hold
+            </label>
+          </div>
+        </div>
+
+        <!-- Course Reserve -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">COURSE RESERVE</h3>
+
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="course_reserve" value="yes"
+                     {% if course_reserve and course_reserve.is_course_reserve %}checked{% endif %}
+                     onchange="toggleCR(true)"> Yes
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="course_reserve" value="no"
+                     {% if not (course_reserve and course_reserve.is_course_reserve) %}checked{% endif %}
+                     onchange="toggleCR(false)"> No
+            </label>
+          </div>
+
+          <div id="cr-fields"
+               style="display:{{ 'block' if course_reserve and course_reserve.is_course_reserve else 'none' }}">
+            <div class="form-group">
+              <label>Course Name:</label>
+              <input type="text" name="course_name"
+                     value="{{ course_reserve.course_name if course_reserve else '' }}">
+            </div>
+            <div class="form-group">
+              <label>Course Number (CRN):</label>
+              <input type="text" name="course_number"
+                     value="{{ course_reserve.course_number if course_reserve else '' }}">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right -->
+    </div><!-- /form-grid -->
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleCR(show) {
+  document.getElementById('cr-fields').style.display = show ? 'block' : 'none';
+}
+</script>
+{% endblock %}
