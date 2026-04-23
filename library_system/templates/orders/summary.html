@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Order Summary – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <h2 class="page-title">
+    Order Summary for Fiscal Year
+    {{ current_year.label if current_year else 'All Years' }}
+  </h2>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <div class="radio-group">
+      {% for s in ['NEW','PENDING','COMPLETED','ALL'] %}
+      <label class="radio-label">
+        <input type="radio" name="status_filter" value="{{ s }}"
+               {% if status_filter == s %}checked{% endif %}
+               onchange="applyFilter()">
+        {{ s }}
+      </label>
+      {% endfor %}
+    </div>
+    <div class="year-select-row">
+      <label>CHANGE YEAR:</label>
+      <select id="year-select" onchange="applyFilter()">
+        <option value="current" {% if year_filter=='current' %}selected{% endif %}>Current Year</option>
+        <option value="all"     {% if year_filter=='all'     %}selected{% endif %}>All Years</option>
+        {% for fy in fiscal_years %}
+        <option value="{{ fy.id }}" {% if year_filter==fy.id|string %}selected{% endif %}>
+          {{ fy.label }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Orders table -->
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Order No.</th>
+          <th>Status</th>
+          <th>Request Date</th>
+          <th>Librarian</th>
+          <th>Acquisition Tech</th>
+          <th>Cataloging Personnel</th>
+          <th>Destination</th>
+          <th>Department</th>
+          <th>Program</th>
+          <th>Items in Order</th>
+          <th>Alert</th>
+          <th>Order Total</th>
+          <th>Date Fulfilled</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>
+            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="link-select">Select</a>
+          </td>
+          <td>{{ order.id }}</td>
+          <td><span class="status-badge status-{{ order.status|lower }}">{{ order.status }}</span></td>
+          <td>{{ order.request_date }}</td>
+          <td>{{ order.librarian_name or '-' }}</td>
+          <td>{{ order.acq_tech_name or '-' }}</td>
+          <td>{{ order.cat_name or '-' }}</td>
+          <td>{{ order.destination_name or '-' }}</td>
+          <td>{{ order.department_name or '-' }}</td>
+          <td>{{ order.program_name or '-' }}</td>
+          <td>{{ order.item_count }}</td>
+          <td class="alert-cell">
+            {% set alerts = order_alerts.get(order.id, []) %}
+            {% if 'course_reserve' in alerts %}
+              <span class="alert-icon" title="Course Reserve">&#128218;</span>
+            {% endif %}
+            {% if 'faculty' in alerts %}
+              <span class="alert-icon" title="Faculty Notification">&#9432;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if order.order_total %}
+              ${{ "%.2f"|format(order.order_total) }}
+            {% else %}
+              -NA-
+            {% endif %}
+          </td>
+          <td>{{ order.date_fulfilled or '-NA-' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="14" class="no-data">No orders found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="action-bar">
+    <a href="{{ url_for('order_new') }}" class="btn btn-primary">+ New Order</a>
+  </div>
+</div>
+
+<footer class="site-footer">&copy; 2025 &ndash; Lamar University &ndash; Mary &amp; John Gray Library</footer>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function applyFilter() {
+  const status = document.querySelector('input[name="status_filter"]:checked').value;
+  const year   = document.getElementById('year-select').value;
+  window.location = `{{ url_for('orders_summary') }}?status=${status}&year=${year}`;
+}
+</script>
+{% endblock %}

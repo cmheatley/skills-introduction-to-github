@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if user else 'New' }} User – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="form-page form-page-narrow">
+  <h2 class="page-title">{{ 'Edit User: ' + user.username if user else 'Create New User' }}</h2>
+
+  <form method="POST">
+    <div class="form-section card card-dark">
+      <h3 class="section-title">USER INFORMATION</h3>
+
+      <div class="form-group">
+        <label>First Name:</label>
+        <input type="text" name="first_name" value="{{ user.first_name if user else '' }}" required>
+      </div>
+      <div class="form-group">
+        <label>Last Name:</label>
+        <input type="text" name="last_name" value="{{ user.last_name if user else '' }}" required>
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ user.email if user else '' }}">
+      </div>
+
+      {% if not user %}
+      <div class="form-group">
+        <label>Username<span class="req">*</span>:</label>
+        <input type="text" name="username" required autocomplete="off">
+      </div>
+      {% else %}
+      <div class="form-group">
+        <label>Username:</label>
+        <input type="text" value="{{ user.username }}" disabled class="input-disabled">
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label>{{ 'New Password (leave blank to keep current):' if user else 'Password*:' }}</label>
+        <input type="password" name="password"
+               {% if not user %}required{% endif %}
+               autocomplete="new-password">
+      </div>
+
+      <div class="form-group">
+        <label>Role:</label>
+        <select name="role">
+          {% for role_val, role_label in [
+            ('admin','Administrator'),
+            ('librarian','Librarian'),
+            ('acquisition_tech','Acquisition Technician'),
+            ('cataloging_personnel','Cataloging Personnel')
+          ] %}
+          <option value="{{ role_val }}"
+            {% if user and user.role==role_val %}selected
+            {% elif not user and role_val=='librarian' %}selected{% endif %}>
+            {{ role_label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {% if user %}
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="active" {% if user.active %}checked{% endif %}>
+          Account Active
+        </label>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {{ 'Save Changes' if user else 'Create User' }}
+      </button>
+      <a href="{{ url_for('admin_users') }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

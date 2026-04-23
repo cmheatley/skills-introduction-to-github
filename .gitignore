@@ -26,6 +26,23 @@
 *.sql
 *.sqlite
 
+# Python #
+###########
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Flask instance folder (contains DB and secrets) #
+####################################################
+library_system/instance/
+
 # OS generated files #
 ######################
 .DS_Store

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Library Ordering System{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% if session.user_id %}
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logos">
+      <span class="logo-text">Lamar University</span>
+      <span class="logo-sep">|</span>
+      <span class="logo-text">Mary &amp; John Gray Library</span>
+    </div>
+
+    <nav class="main-nav">
+      <div class="nav-dropdown">
+        <a href="{{ url_for('orders_summary') }}" class="nav-link {% if request.endpoint and 'order' in request.endpoint %}active{% endif %}">Orders</a>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('orders_summary') }}">Order Summary</a>
+          <a href="{{ url_for('order_new') }}">New Order</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a href="{{ url_for('budget') }}" class="nav-link {% if request.endpoint and 'budget' in request.endpoint %}active{% endif %}">Financials</a>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('budget', type='department') }}">Department Budget</a>
+          <a href="{{ url_for('budget', type='vendor') }}">Vendor Budget</a>
+        </div>
+      </div>
+      {% if session.role == 'admin' %}
+      <div class="nav-dropdown">
+        <a href="{{ url_for('admin_users') }}" class="nav-link {% if request.endpoint and 'admin' in request.endpoint %}active{% endif %}">Admin Tools</a>
+        <div class="nav-dropdown-menu">
+          <a href="{{ url_for('admin_users') }}">Manage Users</a>
+          <a href="{{ url_for('admin_manage') }}">System Settings</a>
+        </div>
+      </div>
+      {% endif %}
+    </nav>
+
+    <div class="header-user">
+      <div class="user-dropdown">
+        <button class="user-btn">
+          <span class="user-icon">&#9786;</span>
+          {{ session.full_name }}
+          <span class="caret">&#9660;</span>
+        </button>
+        <div class="user-dropdown-menu">
+          <span class="user-role-label">{{ session.role|replace('_',' ')|title }}</span>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+{% endif %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main class="{% block main_class %}main-content{% endblock %}">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  &copy; 2025 &ndash; Lamar University &ndash; Mary &amp; John Gray Library
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

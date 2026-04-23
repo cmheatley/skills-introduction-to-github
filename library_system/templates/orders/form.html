@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% block title %}New Order – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <h2 class="page-title">Order Form</h2>
+
+  <form method="POST" id="order-form">
+    <div class="form-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="form-col">
+
+        <!-- GENERAL INFO -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">GENERAL INFO</h3>
+
+          <div class="form-group">
+            <label>Librarian<span class="req">*</span>:</label>
+            <select name="librarian_id" required>
+              <option value="">-- select --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}"
+                {% if session.role == 'librarian' and u.id == session.user_id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Acquisition Technician<span class="req">*</span>:</label>
+            <select name="acquisition_tech_id" required>
+              <option value="">-- select --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}"
+                {% if session.role == 'acquisition_tech' and u.id == session.user_id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cataloging Personnel<span class="req">*</span>:</label>
+            <select name="cataloging_personnel_id" required>
+              <option value="">-- select --</option>
+              {% for u in users %}
+              <option value="{{ u.id }}"
+                {% if session.role == 'cataloging_personnel' and u.id == session.user_id %}selected{% endif %}>
+                {{ u.first_name }} {{ u.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Destination<span class="req">*</span>:</label>
+            <select name="destination_id" id="dest-select" required onchange="loadDepartments(this.value)">
+              <option value="">-- select --</option>
+              {% for d in destinations %}
+              <option value="{{ d.id }}">{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Department<span class="req">*</span>:</label>
+            <select name="department_id" id="dept-select" required onchange="loadPrograms(this.value)">
+              <option value="">-- select destination first --</option>
+              {% for d in departments %}
+              <option value="{{ d.id }}">{{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Programs<span class="req">*</span>:</label>
+            <select name="program_id" id="prog-select" required>
+              <option value="">-- select department first --</option>
+              {% for p in programs %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Request Date:</label>
+            <input type="date" name="request_date" value="{{ today }}">
+          </div>
+
+          <button type="button" class="btn btn-danger btn-sm" onclick="resetSection('general-section')">RESET SECTION</button>
+        </div>
+
+        <!-- REQUESTING CLASSROOM FACULTY INFO -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">REQUESTING CLASSROOM FACULTY INFO</h3>
+          <p class="section-subtitle">Optional</p>
+
+          <div class="form-group">
+            <label>Faculty Name:</label>
+            <input type="text" name="faculty_name" placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>Faculty Email:</label>
+            <input type="email" name="faculty_email" placeholder="Required if faculty is entered.">
+          </div>
+          <div class="form-group">
+            <label>Faculty Phone:</label>
+            <input type="text" name="faculty_phone" placeholder="Required if faculty is entered.">
+          </div>
+
+          <div class="checkbox-row">
+            <label class="checkbox-label">
+              <input type="checkbox" name="notify_faculty"> Notify Faculty
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="preview_item"> Preview Item
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="hold_item"> Place Item on Hold
+            </label>
+          </div>
+
+          <button type="button" class="btn btn-danger btn-sm" onclick="resetFacultySection()">RESET SECTION</button>
+        </div>
+      </div><!-- /form-col left -->
+
+      <!-- RIGHT COLUMN -->
+      <div class="form-col">
+
+        <!-- ITEM INFO -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">ITEM INFO</h3>
+
+          <div class="form-group">
+            <label>Title<span class="req">*</span>:</label>
+            <input type="text" name="title" placeholder="Title" required>
+          </div>
+          <div class="form-group">
+            <label>Material Type<span class="req">*</span>:</label>
+            <select name="material_type_id" required>
+              <option value="">-- make selection --</option>
+              {% for mt in material_types %}
+              <option value="{{ mt.id }}">{{ mt.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantity<span class="req">*</span>:</label>
+            <input type="number" name="quantity" value="1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label>Vendor<span class="req">*</span>:</label>
+            <select name="vendor_id" required>
+              <option value="">-- make selection --</option>
+              {% for v in vendors %}
+              <option value="{{ v.id }}">{{ v.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Source<span class="req">*</span>:</label>
+            <input type="url" name="source_url" placeholder="URL of the item to order">
+          </div>
+          <div class="form-group">
+            <label>Requestor Notes:</label>
+            <input type="text" name="requestor_notes" placeholder="Any additional information (optional)">
+          </div>
+        </div>
+
+        <!-- COURSE RESERVE -->
+        <div class="form-section card card-dark">
+          <h3 class="section-title">COURSE RESERVE</h3>
+
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="course_reserve" value="yes"
+                     onchange="toggleCourseReserve(true)"> Yes
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="course_reserve" value="no"
+                     checked onchange="toggleCourseReserve(false)"> No
+            </label>
+          </div>
+
+          <div id="course-reserve-fields" style="display:none;">
+            <div class="form-group">
+              <label>Course Name<span class="req">*</span>:</label>
+              <input type="text" name="course_name" id="course-name"
+                     placeholder="Required if Course Reserve is selected">
+            </div>
+            <div class="form-group">
+              <label>Course Number (CRN)<span class="req">*</span>:</label>
+              <input type="text" name="course_number" id="course-number"
+                     placeholder="Required if Course Reserve is selected">
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-danger btn-sm" onclick="resetCourseReserve()">RESET SECTION</button>
+        </div>
+
+      </div><!-- /form-col right -->
+    </div><!-- /form-grid -->
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">ADD ITEM TO ORDER</button>
+      <button type="reset" class="btn btn-secondary" onclick="resetAll()">RESET FORM</button>
+      <a href="{{ url_for('orders_summary') }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function loadDepartments(destId) {
+  const deptSel = document.getElementById('dept-select');
+  const progSel = document.getElementById('prog-select');
+  deptSel.innerHTML = '<option value="">-- loading... --</option>';
+  progSel.innerHTML = '<option value="">-- select department first --</option>';
+  if (!destId) return;
+  fetch(`/api/departments/${destId}`)
+    .then(r => r.json())
+    .then(data => {
+      deptSel.innerHTML = '<option value="">-- select --</option>';
+      data.forEach(d => {
+        deptSel.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+      });
+    });
+}
+
+function loadPrograms(deptId) {
+  const progSel = document.getElementById('prog-select');
+  progSel.innerHTML = '<option value="">-- loading... --</option>';
+  if (!deptId) return;
+  fetch(`/api/programs/${deptId}`)
+    .then(r => r.json())
+    .then(data => {
+      progSel.innerHTML = '<option value="">-- select --</option>';
+      data.forEach(p => {
+        progSel.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+      });
+    });
+}
+
+function toggleCourseReserve(show) {
+  document.getElementById('course-reserve-fields').style.display = show ? 'block' : 'none';
+  document.getElementById('course-name').required = show;
+  document.getElementById('course-number').required = show;
+}
+
+function resetCourseReserve() {
+  document.querySelectorAll('input[name="course_reserve"]').forEach(r => {
+    r.checked = r.value === 'no';
+  });
+  toggleCourseReserve(false);
+}
+
+function resetFacultySection() {
+  ['faculty_name','faculty_email','faculty_phone'].forEach(n => {
+    const el = document.querySelector(`[name="${n}"]`);
+    if (el) el.value = '';
+  });
+  ['notify_faculty','preview_item','hold_item'].forEach(n => {
+    const el = document.querySelector(`[name="${n}"]`);
+    if (el) el.checked = false;
+  });
+}
+
+function resetAll() {
+  resetCourseReserve();
+}
+</script>
+{% endblock %}

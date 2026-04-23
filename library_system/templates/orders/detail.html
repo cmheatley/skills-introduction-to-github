@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }} – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+
+  <!-- Top row -->
+  <div class="detail-top">
+    <!-- ORDER DETAILS card -->
+    <div class="card card-dark detail-card-left">
+      <div class="card-header-row">
+        <h3 class="card-title">ORDER DETAILS</h3>
+        <span class="card-icon">&#128722;</span>
+      </div>
+      <table class="info-table">
+        <tr><th>Order #:</th>           <td>{{ order.id }}</td></tr>
+        <tr><th>Order Status:</th>      <td><strong>{{ order.status }}</strong></td></tr>
+        <tr><th>Request Date:</th>      <td>{{ order.request_date }}</td></tr>
+        <tr><th>Librarian:</th>         <td>{{ order.librarian_name or '—' }}</td></tr>
+        <tr><th>Aquisition Tech:</th>   <td>{{ order.acq_tech_name or '—' }}</td></tr>
+        <tr><th>Cataloging Personnel:</th><td>{{ order.cat_name or '—' }}</td></tr>
+        <tr><th>Destination:</th>       <td>{{ order.destination_name or '—' }}</td></tr>
+        <tr><th>Department:</th>        <td>{{ order.department_name or '—' }}</td></tr>
+        <tr><th>Program:</th>           <td>{{ order.program_name or '—' }}</td></tr>
+        <tr><th>Order Total:</th>       <td>${{ "%.2f"|format(order.order_total) }}</td></tr>
+        <tr><th>Date Fulfilled:</th>    <td>{{ order.date_fulfilled or '—' }}</td></tr>
+      </table>
+      <div class="card-actions">
+        <a href="{{ url_for('order_edit', order_id=order.id) }}" class="btn btn-sm btn-outline">Edit Order</a>
+        {% if session.role in ['admin','librarian'] %}
+        <form method="POST" action="{{ url_for('order_delete', order_id=order.id) }}"
+              style="display:inline"
+              onsubmit="return confirm('Delete this entire order?')">
+          <button type="submit" class="btn btn-sm btn-danger">Delete Order</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Items table -->
+    <div class="detail-items-panel">
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Item Description</th>
+            <th>PO Num</th>
+            <th>Item Amount</th>
+            <th>Quantity</th>
+            <th>Date Ordered</th>
+            <th>Date Received</th>
+            <th>Date Catalogued</th>
+            <th>Tech Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr class="{% if loop.index is odd %}item-row-dark{% else %}item-row-maroon{% endif %}">
+            <td>{{ item.id }}</td>
+            <td>
+              <a href="{{ url_for('item_edit', order_id=order.id, item_id=item.id) }}"
+                 class="item-link">{{ item.title }}</a>
+            </td>
+            <td>{{ item.po_num or '' }}</td>
+            <td>{% if item.item_amount %}${{ "%.2f"|format(item.item_amount) }}{% endif %}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.date_ordered or '' }}</td>
+            <td>{{ item.date_received or '' }}</td>
+            <td>{{ item.date_catalogued or '' }}</td>
+            <td>{{ item.tech_notes or '' }}</td>
+            <td>
+              <a href="{{ url_for('item_edit', order_id=order.id, item_id=item.id) }}" class="link-edit">Edit</a>
+              /
+              <form method="POST"
+                    action="{{ url_for('item_delete', order_id=order.id, item_id=item.id) }}"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete this item?')">
+                <button type="submit" class="btn-link-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="10" class="no-data">No items on this order.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="items-action-bar">
+        <a href="{{ url_for('item_new', order_id=order.id) }}" class="btn btn-sm btn-primary">+ Add Item</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom row of info cards -->
+  <div class="detail-bottom">
+
+    <!-- DEPARTMENT BUDGET -->
+    <div class="card card-dark info-card">
+      <div class="card-header-row">
+        <h3 class="card-title">DEPARTMENT BUDGET</h3>
+        <span class="card-icon">&#128176;</span>
+      </div>
+      {% if budget %}
+      <table class="info-table">
+        <tr><th>Amount Allocated</th><td>${{ "%.2f"|format(budget.allocated) }}</td></tr>
+        <tr><th>Amount Spent:</th>   <td>${{ "%.2f"|format(budget.spent) }}</td></tr>
+        <tr><th>Amount Remaining:</th><td>${{ "%.2f"|format(budget.remaining) }}</td></tr>
+      </table>
+      {% else %}
+      <p class="muted">No budget data for this department.</p>
+      {% endif %}
+    </div>
+
+    <!-- ITEM INFO -->
+    {% set item = items[0] if items else none %}
+    <div class="card card-maroon info-card">
+      <div class="card-header-row">
+        <h3 class="card-title">ITEM INFO</h3>
+        <span class="card-icon">&#128214;</span>
+      </div>
+      {% if item %}
+      <table class="info-table">
+        <tr><th>Item:</th>             <td>{{ item.title }}</td></tr>
+        <tr><th>Material Type:</th>    <td>{{ item.material_type_name or '—' }}</td></tr>
+        <tr><th>Vendor:</th>           <td>{{ item.vendor_name or '—' }}</td></tr>
+        <tr><th>Source:</th>           <td>
+          {% if item.source_url %}
+            <a href="{{ item.source_url }}" target="_blank" class="item-link">Link to Item</a>
+          {% else %}—{% endif %}
+        </td></tr>
+        <tr><th>Requestor Notes:</th>  <td>{{ item.requestor_notes or '—' }}</td></tr>
+        <tr><th>Status:</th>           <td>{{ item.item_status }}</td></tr>
+      </table>
+      {% else %}
+      <p class="muted">No items on this order.</p>
+      {% endif %}
+    </div>
+
+    <!-- REQUESTING CLASSROOM FACULTY INFO -->
+    <div class="card card-maroon info-card">
+      <div class="card-header-row">
+        <h3 class="card-title">REQUESTING CLASSROOM FACULTY INFO</h3>
+        <span class="card-icon">&#128100;</span>
+      </div>
+      {% if faculty_request %}
+      <table class="info-table">
+        <tr><th>Requesting Faculty:</th><td>{{ faculty_request.faculty_name or '—' }}</td></tr>
+        <tr><th>Email:</th>             <td>{{ faculty_request.faculty_email or '—' }}</td></tr>
+        <tr><th>Phone:</th>             <td>{{ faculty_request.faculty_phone or '—' }}</td></tr>
+        <tr><th>Notify when item arrives:</th><td>{{ 'Yes' if faculty_request.notify_faculty else 'No' }}</td></tr>
+        <tr><th>Preview Item:</th>      <td>{{ 'Yes' if faculty_request.preview_item else 'No' }}</td></tr>
+        <tr><th>Hold Item:</th>         <td>{{ 'Yes' if faculty_request.hold_item else 'No' }}</td></tr>
+      </table>
+      {% else %}
+      <p class="muted">No faculty info.</p>
+      {% endif %}
+    </div>
+
+    <!-- COURSE RESERVE INFO -->
+    <div class="card card-maroon info-card">
+      <div class="card-header-row">
+        <h3 class="card-title">COURSE RESERVE INFO</h3>
+        <span class="card-icon">&#128220;</span>
+      </div>
+      {% if course_reserve %}
+      <table class="info-table">
+        <tr><th>Course Reserve?</th><td>{{ 'Yes' if course_reserve.is_course_reserve else 'No' }}</td></tr>
+        <tr><th>Course Name:</th>   <td>{{ course_reserve.course_name or '—' }}</td></tr>
+        <tr><th>Course Number:</th> <td>{{ course_reserve.course_number or '—' }}</td></tr>
+      </table>
+      {% else %}
+      <p class="muted">No course reserve info.</p>
+      {% endif %}
+    </div>
+
+  </div><!-- /detail-bottom -->
+</div><!-- /detail-page -->
+{% endblock %}

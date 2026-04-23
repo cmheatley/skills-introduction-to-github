@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}Budget – Library Ordering System{% endblock %}
+{% block body_class %}page-bg{% endblock %}
+
+{% block content %}
+<div class="page-content">
+  <h2 class="page-title">
+    {{ 'Department' if budget_type=='department' else 'Vendor' }} Budget for Fiscal Year
+    {{ selected_year.label if selected_year else 'N/A' }}
+  </h2>
+
+  <!-- Type and year toggles -->
+  <div class="filter-row">
+    <div class="radio-group">
+      <label class="radio-label">
+        <input type="radio" name="budget_type" value="department"
+               {% if budget_type=='department' %}checked{% endif %}
+               onchange="switchType(this.value)">
+        DEPARTMENT BUDGET
+      </label>
+      <label class="radio-label">
+        <input type="radio" name="budget_type" value="vendor"
+               {% if budget_type=='vendor' %}checked{% endif %}
+               onchange="switchType(this.value)">
+        VENDOR BUDGET
+      </label>
+    </div>
+    <div class="year-select-row">
+      <label>CHANGE YEAR:</label>
+      <select id="year-select" onchange="switchYear(this.value)">
+        <option value="current" {% if year_filter=='current' %}selected{% endif %}>Current Year</option>
+        {% for fy in fiscal_years %}
+        <option value="{{ fy.id }}" {% if year_filter==fy.id|string %}selected{% endif %}>
+          {{ fy.label }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Budget table -->
+  <div class="budget-layout">
+    <div class="budget-table-wrapper">
+      <table class="data-table budget-table">
+        <thead>
+          <tr>
+            <th>{{ 'Department Name' if budget_type=='department' else 'Vendor Name' }}</th>
+            <th>Amount Allocated</th>
+            <th>Amount Spent</th>
+            <th>Amount Remaining</th>
+            <th>Effective Date</th>
+            {% if session.role in ['admin','librarian'] %}
+            <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in budget_data %}
+          <tr>
+            <td>
+              {% if row.allocated > 0 %}
+                <a class="link-select" onclick="openBudgetEdit(
+                  '{{ row.entity.id }}',
+                  '{{ row.entity.name|replace("'","\\'") }}',
+                  {{ row.allocated }},
+                  '{{ row.effective_date or '' }}'
+                )">{{ row.entity.name }}</a>
+              {% else %}
+                {{ row.entity.name }}
+              {% endif %}
+            </td>
+            <td>${{ "%.2f"|format(row.allocated) }}</td>
+            <td>${{ "%.2f"|format(row.spent) }}</td>
+            <td class="{{ 'negative' if row.remaining < 0 else '' }}">
+              ${{ "%.2f"|format(row.remaining) }}
+            </td>
+            <td>{{ row.effective_date or '—' }}</td>
+            {% if session.role in ['admin','librarian'] %}
+            <td>
+              <button type="button" class="btn btn-sm btn-outline"
+                onclick="openBudgetEdit(
+                  '{{ row.entity.id }}',
+                  '{{ row.entity.name|replace("'","\\'") }}',
+                  {{ row.allocated }},
+                  '{{ row.effective_date or '' }}'
+                )">Edit</button>
+            </td>
+            {% endif %}
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="no-data">No data available.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr class="totals-row">
+            <td><strong>Totals:</strong></td>
+            <td><strong>${{ "%.2f"|format(total_allocated) }}</strong></td>
+            <td><strong>${{ "%.2f"|format(total_spent) }}</strong></td>
+            <td><strong>${{ "%.2f"|format(total_remaining) }}</strong></td>
+            <td colspan="{% if session.role in ['admin','librarian'] %}2{% else %}1{% endif %}"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Budget edit modal -->
+{% if session.role in ['admin','librarian'] and selected_year %}
+<div id="budget-modal" class="modal" style="display:none;">
+  <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div class="modal-box card card-dark">
+    <h3 class="modal-title" id="modal-title">Edit Budget</h3>
+    <form method="POST" action="{{ url_for('budget_update') }}">
+      <input type="hidden" name="budget_type" value="{{ budget_type }}">
+      <input type="hidden" name="fiscal_year_id" value="{{ selected_year.id }}">
+      <input type="hidden" name="{{ 'department_id' if budget_type=='department' else 'vendor_id' }}"
+             id="modal-entity-id">
+
+      <div class="form-group">
+        <label>Amount Allocated ($):</label>
+        <input type="number" step="0.01" min="0" name="amount" id="modal-amount" required>
+      </div>
+      <div class="form-group">
+        <label>Effective Date:</label>
+        <input type="date" name="effective_date" id="modal-effective-date">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function switchType(val) {
+  const year = document.getElementById('year-select').value;
+  window.location = `/financials/budget?type=${val}&year=${year}`;
+}
+function switchYear(val) {
+  const type = document.querySelector('input[name="budget_type"]:checked').value;
+  window.location = `/financials/budget?type=${type}&year=${val}`;
+}
+function openBudgetEdit(id, name, amount, effectiveDate) {
+  document.getElementById('modal-title').textContent = 'Edit Budget: ' + name;
+  document.getElementById('modal-entity-id').value = id;
+  document.getElementById('modal-amount').value = amount;
+  document.getElementById('modal-effective-date').value = effectiveDate;
+  document.getElementById('budget-modal').style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('budget-modal').style.display = 'none';
+}
+</script>
+{% endblock %}
