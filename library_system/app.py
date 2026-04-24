@@ -198,6 +198,11 @@ def order_new():
         ''', (
             'NEW',
             request.form.get('requisition_number', '').strip() or None,
+              (status, request_date, librarian_id, acquisition_tech_id,
+               cataloging_personnel_id, destination_id, department_id, program_id, fiscal_year_id)
+            VALUES (?,?,?,?,?,?,?,?,?)
+        ''', (
+            'NEW',
             request.form.get('request_date', today),
             request.form.get('librarian_id') or None,
             request.form.get('acquisition_tech_id') or None,
@@ -359,6 +364,7 @@ def order_edit(order_id):
     if request.method == 'POST':
         db.execute('''
             UPDATE orders SET status=?, requisition_number=?, request_date=?, librarian_id=?,
+            UPDATE orders SET status=?, request_date=?, librarian_id=?,
               acquisition_tech_id=?, cataloging_personnel_id=?,
               destination_id=?, department_id=?, program_id=?, date_fulfilled=?
             WHERE id=?
