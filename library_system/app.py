@@ -21,6 +21,20 @@ def get_db():
     return g.db
 
 
+def _migrate_db():
+    if not os.path.exists(DATABASE):
+        return
+    conn = sqlite3.connect(DATABASE)
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(orders)")]
+    if 'resource_type' not in cols:
+        conn.execute("ALTER TABLE orders ADD COLUMN resource_type TEXT NOT NULL DEFAULT 'New'")
+        conn.commit()
+    conn.close()
+
+
+_migrate_db()
+
+
 @app.teardown_appcontext
 def close_db(e=None):
     db = g.pop('db', None)
@@ -178,11 +192,12 @@ def order_new():
 
         cur = db.execute('''
             INSERT INTO orders
-              (status, request_date, librarian_id, acquisition_tech_id,
+              (status, resource_type, request_date, librarian_id, acquisition_tech_id,
                cataloging_personnel_id, destination_id, department_id, program_id, fiscal_year_id)
-            VALUES (?,?,?,?,?,?,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
         ''', (
             'NEW',
+            request.form.get('resource_type', 'New'),
             request.form.get('request_date', today),
             request.form.get('librarian_id') or None,
             request.form.get('acquisition_tech_id') or None,
@@ -343,12 +358,13 @@ def order_edit(order_id):
 
     if request.method == 'POST':
         db.execute('''
-            UPDATE orders SET status=?, request_date=?, librarian_id=?,
+            UPDATE orders SET status=?, resource_type=?, request_date=?, librarian_id=?,
               acquisition_tech_id=?, cataloging_personnel_id=?,
               destination_id=?, department_id=?, program_id=?, date_fulfilled=?
             WHERE id=?
         ''', (
             request.form.get('status'),
+            request.form.get('resource_type', 'New'),
             request.form.get('request_date'),
             request.form.get('librarian_id') or None,
             request.form.get('acquisition_tech_id') or None,
@@ -871,6 +887,20 @@ def admin_department_add():
     return redirect(url_for('admin_manage'))
 
 
+@app.route('/admin/departments/<int:did>/edit', methods=['POST'])
+@login_required
+@role_required('admin')
+def admin_department_edit(did):
+    db = get_db()
+    name = request.form.get('name', '').strip()
+    dst = request.form.get('destination_id') or None
+    if name:
+        db.execute('UPDATE departments SET name=?, destination_id=? WHERE id=?', (name, dst, did))
+        db.commit()
+        flash('Department updated.', 'success')
+    return redirect(url_for('admin_manage'))
+
+
 @app.route('/admin/departments/<int:did>/delete', methods=['POST'])
 @login_required
 @role_required('admin')
@@ -893,6 +923,20 @@ def admin_program_add():
         db.execute('INSERT INTO programs (name, department_id) VALUES (?,?)', (name, dept))
         db.commit()
         flash('Program added.', 'success')
+    return redirect(url_for('admin_manage'))
+
+
+@app.route('/admin/programs/<int:pid>/edit', methods=['POST'])
+@login_required
+@role_required('admin')
+def admin_program_edit(pid):
+    db = get_db()
+    name = request.form.get('name', '').strip()
+    dept = request.form.get('department_id') or None
+    if name:
+        db.execute('UPDATE programs SET name=?, department_id=? WHERE id=?', (name, dept, pid))
+        db.commit()
+        flash('Program updated.', 'success')
     return redirect(url_for('admin_manage'))
 
 

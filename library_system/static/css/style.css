@@ -1,11 +1,15 @@
 /* ── Variables ────────────────────────────────────────────────── */
+/* Lamar University primary identity colors */
 :root {
   --maroon-nav:      #2d0a14;
-  --maroon-primary:  #7b1530;
-  --maroon-hover:    #9b2040;
+  --maroon-primary:  #7b1130;   /* LU Maroon  – PMS 7421 C  */
+  --maroon-hover:    #9b1f42;
   --maroon-light:    #a83050;
+  --gold:            #C99700;   /* LU Gold    – PMS 7548 C  */
+  --gold-light:      #e6b800;
+  --gold-dark:       #a07a00;
   --card-dark:       #383838;
-  --card-maroon:     #7b1530;
+  --card-maroon:     #7b1130;
   --gray-medium:     #4a4a4a;
   --white:           #ffffff;
   --light-bg:        #f4f4f4;
@@ -76,7 +80,11 @@ button { cursor: pointer; }
   font-weight: 500;
   transition: background 0.15s;
 }
-.nav-link:hover, .nav-link.active { background: var(--maroon-primary); }
+.nav-link:hover { background: var(--maroon-primary); }
+.nav-link.active {
+  background: var(--maroon-primary);
+  border-bottom: 3px solid var(--gold);
+}
 .nav-dropdown:hover .nav-dropdown-menu { display: block; }
 .nav-dropdown-menu {
   display: none;
@@ -188,7 +196,7 @@ button { cursor: pointer; }
   margin-bottom: 14px;
 }
 .login-logos span { color: var(--text-light); }
-.login-header h1 { color: var(--white); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.login-header h1 { color: var(--gold); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
 .login-subtitle { color: var(--text-muted); font-size: 13px; }
 .login-form { display: flex; flex-direction: column; gap: 18px; }
 .login-footer { text-align: center; margin-top: 24px; color: var(--text-muted); }
@@ -202,13 +210,6 @@ button { cursor: pointer; }
   border-radius: 6px;
   padding: 24px 28px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.page-title {
-  text-align: center;
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  color: #1a1a1a;
 }
 .page-header-row {
   display: flex;
@@ -430,7 +431,7 @@ button { cursor: pointer; }
 }
 .form-col { display: flex; flex-direction: column; gap: 20px; }
 .form-section { padding: 20px; border-radius: 6px; }
-.section-title { color: var(--white); font-size: 14px; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px; }
+.section-title { color: var(--gold); font-size: 14px; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.5px; }
 .section-subtitle { color: var(--text-muted); font-size: 12px; font-style: italic; margin-top: -10px; margin-bottom: 12px; }
 .form-actions {
   display: flex;
@@ -450,7 +451,7 @@ button { cursor: pointer; }
   justify-content: space-between;
   margin-bottom: 14px;
 }
-.card-title { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.card-title { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gold); }
 .card-icon  { font-size: 22px; opacity: 0.8; }
 .card-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -551,6 +552,41 @@ button { cursor: pointer; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.6);
 }
 .modal-title { color: var(--white); font-size: 16px; margin-bottom: 18px; }
+
+/* ── Gold accent button ───────────────────────────────────────── */
+.btn-gold { background: var(--gold); color: #1a1a1a; }
+.btn-gold:hover { background: var(--gold-light); color: #111; }
+
+/* ── Edit link button (manage tables) ────────────────────────── */
+.btn-link-edit {
+  background: none;
+  border: none;
+  color: var(--gold);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+.btn-link-edit:hover { color: var(--gold-light); }
+
+/* ── System Settings table text fix ──────────────────────────── */
+/* Even rows in dark cards show near-white bg (#f8f8f8) –
+   override inherited white text so it stays readable. */
+.manage-table tbody tr:nth-child(even) { color: #111; }
+.manage-table tbody tr:nth-child(odd)  { color: var(--text-light); }
+.manage-table tbody tr:nth-child(even) .btn-link-danger { color: #c00; }
+.manage-table tbody tr:nth-child(even) .btn-link-edit   { color: var(--gold-dark); }
+
+/* ── Page title gold underline ───────────────────────────────── */
+.page-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #1a1a1a;
+  border-bottom: 3px solid var(--gold);
+  padding-bottom: 10px;
+}
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 1100px) {

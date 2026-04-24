@@ -24,6 +24,20 @@
           </div>
 
           <div class="form-group">
+            <label>Resource Type:</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="resource_type" value="New"
+                  {% if not order.resource_type or order.resource_type == 'New' %}checked{% endif %}> New
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="resource_type" value="Recurring"
+                  {% if order.resource_type == 'Recurring' %}checked{% endif %}> Recurring
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
             <label>Request Date:</label>
             <input type="date" name="request_date" value="{{ order.request_date }}">
           </div>
