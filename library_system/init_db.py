@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS fiscal_years (
 CREATE TABLE IF NOT EXISTS orders (
     id                     INTEGER PRIMARY KEY AUTOINCREMENT,
     status                 TEXT    NOT NULL DEFAULT 'NEW',
+    requisition_number     TEXT,
     request_date           DATE    NOT NULL,
     librarian_id           INTEGER REFERENCES users(id) ON DELETE SET NULL,
     acquisition_tech_id    INTEGER REFERENCES users(id) ON DELETE SET NULL,

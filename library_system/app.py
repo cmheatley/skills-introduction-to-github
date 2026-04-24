@@ -21,6 +21,20 @@ def get_db():
     return g.db
 
 
+def _migrate_db():
+    if not os.path.exists(DATABASE):
+        return
+    conn = sqlite3.connect(DATABASE)
+    cols = [row[1] for row in conn.execute("PRAGMA table_info(orders)")]
+    if 'requisition_number' not in cols:
+        conn.execute("ALTER TABLE orders ADD COLUMN requisition_number TEXT")
+        conn.commit()
+    conn.close()
+
+
+_migrate_db()
+
+
 @app.teardown_appcontext
 def close_db(e=None):
     db = g.pop('db', None)
@@ -178,6 +192,12 @@ def order_new():
 
         cur = db.execute('''
             INSERT INTO orders
+              (status, requisition_number, request_date, librarian_id, acquisition_tech_id,
+               cataloging_personnel_id, destination_id, department_id, program_id, fiscal_year_id)
+            VALUES (?,?,?,?,?,?,?,?,?,?)
+        ''', (
+            'NEW',
+            request.form.get('requisition_number', '').strip() or None,
               (status, request_date, librarian_id, acquisition_tech_id,
                cataloging_personnel_id, destination_id, department_id, program_id, fiscal_year_id)
             VALUES (?,?,?,?,?,?,?,?,?)
@@ -343,12 +363,14 @@ def order_edit(order_id):
 
     if request.method == 'POST':
         db.execute('''
+            UPDATE orders SET status=?, requisition_number=?, request_date=?, librarian_id=?,
             UPDATE orders SET status=?, request_date=?, librarian_id=?,
               acquisition_tech_id=?, cataloging_personnel_id=?,
               destination_id=?, department_id=?, program_id=?, date_fulfilled=?
             WHERE id=?
         ''', (
             request.form.get('status'),
+            request.form.get('requisition_number', '').strip() or None,
             request.form.get('request_date'),
             request.form.get('librarian_id') or None,
             request.form.get('acquisition_tech_id') or None,
